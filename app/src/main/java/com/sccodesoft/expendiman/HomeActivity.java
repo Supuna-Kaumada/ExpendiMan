@@ -5,10 +5,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
@@ -24,16 +27,28 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.sccodesoft.expendiman.Adapter.MyAdapter;
+import com.sccodesoft.expendiman.Model.LogItem;
 import com.sccodesoft.expendiman.Sql.DBHelper;
+
+import java.util.ArrayList;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     Integer userId=-1;
+    String uincome,uexpense;
+    SharedPreferences prefs;
+    TextView income,expense,balance;
+
+    RecyclerView rv;
+    ArrayList<LogItem> al=new ArrayList<>();
+    String id,name,amount,type;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,21 +57,31 @@ public class HomeActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
         userId = prefs.getInt("user_Id", -1);
+        uincome = prefs.getString("user_Income","0");
+        uexpense = prefs.getString("user_Expense","0");
+
+        income = (TextView)findViewById(R.id.txtuincome);
+        expense = (TextView)findViewById(R.id.txtuexpense);
+        balance = (TextView)findViewById(R.id.txtubalance);
+
+        setTextVal();
+
+
 
         com.github.clans.fab.FloatingActionButton fabExpense = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fabExpense);
         com.github.clans.fab.FloatingActionButton fabSaving = (FloatingActionButton) findViewById(R.id.fabSaving);
         fabExpense.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addListItem(view, "expense");
+                addListItem(view, "Expenditure");
             }
         });
         fabSaving.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               addListItem(view, "income");
+               addListItem(view, "Income");
             }
         });
 
@@ -68,6 +93,39 @@ public class HomeActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void setTextVal() {
+        income.setText(uincome);
+        expense.setText(uexpense);
+        balance.setText(String.valueOf(Double.valueOf(uincome)-Double.valueOf(uexpense)));
+
+        rv = findViewById(R.id.rev);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(HomeActivity.this);
+        rv.setLayoutManager(layoutManager);
+
+        DBHelper helper = new DBHelper(this);
+        SQLiteDatabase db = helper.getReadableDatabase();
+        Cursor cursor=db.query("Logs", null, " User_id=?", new String[]{String.valueOf(userId)}, null, null, null);
+        if(cursor.getCount()>0)
+        {
+            if(cursor.moveToFirst())
+            {
+                do {
+                    id = cursor.getString(0);
+                    name = cursor.getString(2);
+                    amount = cursor.getString(3);
+                    type = cursor.getString(1);
+
+                    LogItem logItem = new LogItem(id,name,amount,type);
+                    al.add(logItem);
+
+                }while (cursor.moveToNext());
+            }
+        }
+
+        MyAdapter my = new MyAdapter(HomeActivity.this,al);
+        rv.setAdapter(my);
     }
 
     public void addListItem(View view, final String type) {
@@ -127,6 +185,19 @@ public class HomeActivity extends AppCompatActivity
                             updateValues.put("User_id",userId);
                             db.insert("Logs",null, updateValues);
 
+                            ContentValues updateValues1 = new ContentValues();
+                            if(type.equals("Income")) {
+                                uincome = String.valueOf(Double.valueOf(uincome) + Double.valueOf(stringValue));
+                                updateValues1.put(type, uincome);
+                                prefs.edit().putString("user_Income", String.valueOf(Double.valueOf(uincome) + Double.valueOf(stringValue))).commit();
+                            }
+                            if(type.equals("Expenditure")) {
+                                uexpense = String.valueOf(Double.valueOf(uexpense) + Double.valueOf(stringValue));
+                                updateValues1.put(type, uexpense);
+                                prefs.edit().putString("user_Expense", String.valueOf(Double.valueOf(uexpense) + Double.valueOf(stringValue))).commit();
+                            }
+                            db.update("Users",updateValues1,"User_id=?", new String[]{userId.toString()});
+                            setTextVal();
                             Toast.makeText(HomeActivity.this, stringName + " was added to your list.", Toast.LENGTH_SHORT).show();
                         }
                         imm.toggleSoftInput(InputMethodManager.HIDE_NOT_ALWAYS, 0);
@@ -181,20 +252,6 @@ public class HomeActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

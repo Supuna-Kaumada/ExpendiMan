@@ -17,8 +17,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "(User_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "Name TEXT," +
             "Password TEXT," +
-            "Income INTEGER," +
-            "Expenditure INTEGER," +
+            "Income TEXT," +
+            "Expenditure TEXT," +
             "Email TEXT )";
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS Users";
 

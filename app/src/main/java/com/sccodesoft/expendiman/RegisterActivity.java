@@ -1,11 +1,9 @@
 package com.sccodesoft.expendiman;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.widget.NestedScrollView;
@@ -20,11 +18,9 @@ import com.sccodesoft.expendiman.Model.User;
 import com.sccodesoft.expendiman.Sql.DBHelper;
 
 
-public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
+public class RegisterActivity extends AppCompatActivity {
 
     private final AppCompatActivity activity = RegisterActivity.this;
-
-    private NestedScrollView nestedScrollView;
 
     private TextInputLayout textInputLayoutName;
     private TextInputLayout textInputLayoutEmail;
@@ -49,15 +45,24 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         getSupportActionBar().hide();
 
         initViews();
-        initListeners();
-        initObjects();
+
+        appCompatButtonRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                postDataToSQLite();
+            }
+        });
+        appCompatTextViewLoginLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        inputValidation = new InputValidation(activity);
+        user = new User();
     }
 
-    /**
-     * This method is to initialize views
-     */
     private void initViews() {
-        nestedScrollView = (NestedScrollView) findViewById(R.id.nestedScrollView);
 
         textInputLayoutName = (TextInputLayout) findViewById(R.id.textInputLayoutName);
         textInputLayoutEmail = (TextInputLayout) findViewById(R.id.textInputLayoutEmail);
@@ -75,47 +80,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    /**
-     * This method is to initialize listeners
-     */
-    private void initListeners() {
-        appCompatButtonRegister.setOnClickListener(this);
-        appCompatTextViewLoginLink.setOnClickListener(this);
-
-    }
-
-    /**
-     * This method is to initialize objects to be used
-     */
-    private void initObjects() {
-        inputValidation = new InputValidation(activity);
-        user = new User();
-
-    }
-
-
-    /**
-     * This implemented method is to listen the click on view
-     *
-     * @param v
-     */
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-
-            case R.id.appCompatButtonRegister:
-                postDataToSQLite();
-                break;
-
-            case R.id.appCompatTextViewLoginLink:
-                finish();
-                break;
-        }
-    }
-
-    /**
-     * This method is to validate the input text fields and post data to SQLite
-     */
     private void postDataToSQLite() {
         if (!inputValidation.isInputEditTextFilled(textInputEditTextName, textInputLayoutName, getString(R.string.error_message_name))) {
             return;
@@ -142,8 +106,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             values.put("Name", textInputEditTextName.getText().toString());
             values.put("Email", textInputEditTextEmail.getText().toString());
             values.put("Password", textInputEditTextPassword.getText().toString());
-            values.put("Income", 0);
-            values.put("Expenditure", 0);
+            values.put("Income", "0");
+            values.put("Expenditure", "0");
 
             db.insert("Users", null, values);
             Toast.makeText(activity, "Registration Succes..", Toast.LENGTH_SHORT).show();
@@ -154,9 +118,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    /**
-     * This method is to empty all input edit text
-     */
     private void emptyInputEditText() {
         textInputEditTextName.setText(null);
         textInputEditTextEmail.setText(null);

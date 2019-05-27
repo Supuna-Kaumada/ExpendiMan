@@ -20,7 +20,7 @@ import com.sccodesoft.expendiman.Sql.DBHelper;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+public class LoginActivity extends AppCompatActivity {
     private final AppCompatActivity activity = LoginActivity.this;
 
     private NestedScrollView nestedScrollView;
@@ -47,13 +47,23 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         getSupportActionBar().hide();
 
         initViews();
-        initListeners();
-        initObjects();
+
+        appCompatButtonLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                verifyFromSQLite();
+            }
+        });
+
+        textViewLinkRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentRegister = new Intent(getApplicationContext(), RegisterActivity.class);
+                startActivity(intentRegister);
+            }
+        });
     }
 
-    /**
-     * This method is to initialize views
-     */
     private void initViews() {
 
         nestedScrollView = (NestedScrollView) findViewById(R.id.nestedScrollView);
@@ -69,47 +79,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         textViewLinkRegister = (AppCompatTextView) findViewById(R.id.textViewLinkRegister);
 
         prefs = getDefaultSharedPreferences(this);
-
-    }
-
-    /**
-     * This method is to initialize listeners
-     */
-    private void initListeners() {
-        appCompatButtonLogin.setOnClickListener(this);
-        textViewLinkRegister.setOnClickListener(this);
-    }
-
-    /**
-     * This method is to initialize objects to be used
-     */
-    private void initObjects() {
         inputValidation = new InputValidation(activity);
 
     }
 
-    /**
-     * This implemented method is to listen the click on view
-     *
-     * @param v
-     */
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.appCompatButtonLogin:
-                verifyFromSQLite();
-                break;
-            case R.id.textViewLinkRegister:
-                // Navigate to RegisterActivity
-                Intent intentRegister = new Intent(getApplicationContext(), RegisterActivity.class);
-                startActivity(intentRegister);
-                break;
-        }
-    }
-
-    /**
-     * This method is to validate the input text fields and verify login credentials from SQLite
-     */
     private void verifyFromSQLite() {
         if (!inputValidation.isInputEditTextFilled(textInputEditTextEmail, textInputLayoutEmail, getString(R.string.error_message_email))) {
             return;
@@ -129,11 +102,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 cursor.moveToFirst();
                 String storedPassword = cursor.getString(cursor.getColumnIndex("Password"));
                 int userId = cursor.getInt(cursor.getColumnIndex("User_id"));
+                String uincome = cursor.getString(cursor.getColumnIndex("Income"));
+                String uexpense = cursor.getString(cursor.getColumnIndex("Expenditure"));
+                String uemail = cursor.getString(cursor.getColumnIndex("Email"));
                 cursor.close();
                 if (textInputEditTextPassword.getText().toString().equals(storedPassword)) {
                     Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
 
                     prefs.edit().putInt("user_Id", userId).commit();
+                    prefs.edit().putString("user_Email", uemail).commit();
+                    prefs.edit().putString("user_Income", uincome).commit();
+                    prefs.edit().putString("user_Expense", uexpense).commit();
                     emptyInputEditText();
                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                     LoginActivity.this.startActivity(intent);
@@ -145,9 +124,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    /**
-     * This method is to empty all input edit text
-     */
     private void emptyInputEditText() {
         textInputEditTextEmail.setText(null);
         textInputEditTextPassword.setText(null);
