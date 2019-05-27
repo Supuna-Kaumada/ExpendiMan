@@ -42,7 +42,7 @@ public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     Integer userId=-1;
-    String uincome,uexpense;
+    String uincome,uexpense,user_Email;
     SharedPreferences prefs;
     TextView income,expense,balance;
 
@@ -61,6 +61,7 @@ public class HomeActivity extends AppCompatActivity
         userId = prefs.getInt("user_Id", -1);
         uincome = prefs.getString("user_Income","0");
         uexpense = prefs.getString("user_Expense","0");
+        user_Email = prefs.getString("user_Email",null);
 
         income = (TextView)findViewById(R.id.txtuincome);
         expense = (TextView)findViewById(R.id.txtuexpense);
@@ -106,16 +107,16 @@ public class HomeActivity extends AppCompatActivity
 
         DBHelper helper = new DBHelper(this);
         SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor cursor=db.query("Logs", null, " User_id=?", new String[]{String.valueOf(userId)}, null, null, null);
+        Cursor cursor=db.query("Logs", null, "user_Email=?", new String[]{user_Email}, null, null, null);
         if(cursor.getCount()>0)
         {
             if(cursor.moveToFirst())
             {
                 do {
                     id = cursor.getString(0);
-                    name = cursor.getString(2);
-                    amount = cursor.getString(3);
-                    type = cursor.getString(1);
+                    name = cursor.getString(1);
+                    amount = cursor.getString(2);
+                    type = cursor.getString(4);
 
                     LogItem logItem = new LogItem(id,name,amount,type);
                     al.add(logItem);
@@ -182,7 +183,7 @@ public class HomeActivity extends AppCompatActivity
                             updateValues.put("Amount", stringValue);
                             updateValues.put("Name", stringName);
                             updateValues.put("Type",type);
-                            updateValues.put("User_id",userId);
+                            updateValues.put("User_Email",user_Email);
                             db.insert("Logs",null, updateValues);
 
                             ContentValues updateValues1 = new ContentValues();

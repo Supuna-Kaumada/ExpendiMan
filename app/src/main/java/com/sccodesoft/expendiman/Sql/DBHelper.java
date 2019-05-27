@@ -10,10 +10,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "ExpMan.db";
 
-    private static final String SQL_CREATE_ENTRIES = "CREATE TABLE Users " +
+    private static final String SQL_CREATE_ENTRIES = "CREATE TABLE Users" +
             "(User_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "Name TEXT," +
             "Password TEXT," +
@@ -22,12 +22,13 @@ public class DBHelper extends SQLiteOpenHelper {
             "Email TEXT )";
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS Users";
 
-    private static final String SQL_CREATE_Logs = "CREATE TABLE Logs " +
+    private static final String SQL_CREATE_Logs = "CREATE TABLE Logs" +
             "(Log_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "Name TEXT," +
             "Amount TEXT," +
-            "User_id TEXT," +
+            "user_Email TEXT," +
             "Type TEXT )";
+
     private static final String SQL_DELETE_Logs = "DROP TABLE IF EXISTS Logs";
 
     public DBHelper(Context context) {
@@ -36,7 +37,6 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public void onCreate(SQLiteDatabase db) {
-
         db.execSQL(SQL_CREATE_ENTRIES);
         db.execSQL(SQL_CREATE_Logs);
     }

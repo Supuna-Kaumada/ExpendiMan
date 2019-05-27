@@ -98,10 +98,54 @@
         
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:layout_below="@id/ll"
-        android:id="@+id/rev"
+    <LinearLayout
+        android:id="@+id/ll2"
         android:layout_margin="10dp"
+        android:layout_below="@id/ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Id"
+            android:textStyle="bold"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:textStyle="bold"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Amount"
+            android:textStyle="bold"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Type"
+            android:textStyle="bold"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp" />
+
+    </LinearLayout>
+
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_below="@id/ll2"
+        android:id="@+id/rev"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     </android.support.v7.widget.RecyclerView>
